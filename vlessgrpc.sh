@@ -1,19 +1,26 @@
 {
   "log": {
     "loglevel": "warning",
-    "error": "/var/log/v2ray/error.log", //若使用xray，此处目录名称v2ray改成xray。
-    "access": "/var/log/v2ray/access.log" //若使用xray，此处目录名称v2ray改成xray。
+    "error": "/var/log/xray/access4.log",
+    "access": "/var/log/xray/error.log"
   },
   "inbounds": [
     {
-      "listen": "127.0.0.1", //只监听本机，避免本机外的机器探测到下面端口。
-      "port": 2009, //vless+grpc监听端口
+      "port": 2089,
       "protocol": "vless",
       "settings": {
         "clients": [
           {
-            "id": "058e0bf3-dd56-11e9-aa37-5600024c1d6a", //修改为自己的UUID
-            "email": "2009@gmail.com"
+            "id": "031289e0-787f-4d24-8da5-a0df7f5b3b15"
+#vlessgrpc
+### lifetime 2023-03-16
+},{"id": "b38d52c8-661c-4acb-97d7-3ea2c3c5d9f9","email": "lifetime"
+### danny 2022-04-18
+},{"id": "4c1eef35-05c7-4acc-86f8-26fbfa222c40","email": "danny"
+### danios 2022-04-18
+},{"id": "fb7a53a6-9cd7-4efe-8744-a5d96fe318a8","email": "danios"
+### dani 2022-04-18
+},{"id": "2f8edfcb-43c6-454a-bca1-e323b3ab577f","email": "dani"
           }
         ],
         "decryption": "none"
@@ -22,7 +29,7 @@
         "network": "grpc",
         "security": "none",
         "grpcSettings": {
-          "serviceName": "cdngrpc" //修改为自己的服务名称，类似于HTTP/2中的Path。
+          "serviceName": "GunService"
         }
       },
       "sniffing": {
