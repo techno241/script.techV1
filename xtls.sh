@@ -1,9 +1,10 @@
-cat << EOF > /etc/xray-mini/vless-direct.json
+
+cat << EOF > /etc/xray-mini/vless-splice.json
 {
-  "log": {
-    "access": "/var/log/xray/access.log",
-    "error": "/var/log/xray/error.log",
-    "loglevel": "info"
+    "log": {
+        "access": "/var/log/xray/access.log",
+        "error": "/var/log/xray/error.log",
+        "loglevel": "info"
   },
   "inbounds": [
     {
@@ -12,15 +13,16 @@ cat << EOF > /etc/xray-mini/vless-direct.json
       "settings": {
         "clients": [
           {
-            "id": "11fc4832-8cb9-4458-a3fb-ef2901717b86",
+            "id": "c3d59878-b02f-49cc-8c97-f7b8af2cfe98",
             "flow": "xtls-rprx-direct",
+            "level": 0
 #XRay
           }
         ],
         "decryption": "none",
         "fallbacks": [
           {
-            "dest": "80"
+            "dest": 80
           },
           {
             "alpn": "h2",
@@ -53,8 +55,7 @@ cat << EOF > /etc/xray-mini/vless-direct.json
       "settings": {
         "clients": [
           {
-            "id": "11fc4832-8cb9-4458-a3fb-ef2901717b86",
-#XRay
+            "id": "c3d59878-b02f-49cc-8c97-f7b8af2cfe98"
           }
         ],
         "decryption": "none"
@@ -72,8 +73,7 @@ cat << EOF > /etc/xray-mini/vless-direct.json
       "settings": {
         "clients": [
           {
-            "id": "11fc4832-8cb9-4458-a3fb-ef2901717b86",
-#XRay
+            "id": "c3d59878-b02f-49cc-8c97-f7b8af2cfe98"
           }
         ]
       },
