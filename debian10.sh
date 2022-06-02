@@ -42,6 +42,23 @@ apt upgrade -y
 # Remove unused dependencies
 apt autoremove -y
 
+apt autoremove --purge ufw -y
+# Optimize settings
+echo -e "${PURPLE}[+] Optimizing settings ...${NC}"
+sleep 1
+sed -i '/^\*\ *soft\ *nofile\ *[[:digit:]]*/d' /etc/security/limits.conf
+sed -i '/^\*\ *hard\ *nofile\ *[[:digit:]]*/d' /etc/security/limits.conf
+echo -e "* soft nofile 65536
+* hard nofile 65536" >> /etc/security/limits.conf
+locale-gen en_US > /dev/null 2>&1
+
+apt install -y iptables-persistent
+checkInstall iptables-persistent
+ufw disable > /dev/null 2>&1
+iptables-save | awk '/^[*]/ { print $1 } 
+                     /^:[A-Z]+ [^-]/ { print $1 " ACCEPT" ; }
+                     /COMMIT/ { print $0; }' | iptables-restore
+
 # Set timezone
 ln -sf /usr/share/zoneinfo/Asia/Kuala_Lumpur /etc/localtime
 
@@ -57,24 +74,6 @@ net.ipv6.conf.lo.disable_ipv6 = 1" >> /etc/sysctl.conf
 echo -e "net.core.default_qdisc=fq
 net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
 sysctl -p
-
-# Configure UFW
-apt install -y ufw
-sed -i 's/DEFAULT_FORWARD_POLICY="DROP"/DEFAULT_FORWARD_POLICY="ACCEPT"/g' /etc/default/ufw
-sed -i "s/IPV6=yes/IPV6=no/g" /etc/default/ufw
-ufw allow 22
-ufw allow 85
-ufw allow 465
-ufw allow 8080
-ufw allow 1194
-ufw allow 80
-ufw allow 443
-ufw allow 51820
-ufw allow 7300
-ufw allow 8000
-ufw allow 3128
-ufw reload
-echo -e "y" | ufw enable
 
 # Install tools
 apt install -y net-tools vnstat unzip curl screen
@@ -147,21 +146,12 @@ wget -qO /etc/openvpn/server-tcp.conf "https://raw.githubusercontent.com/iriszz-
 sed -i "s/#AUTOSTART="all"/AUTOSTART="all"/g" /etc/default/openvpn
 echo -e "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
 sysctl -p
-echo -e "\n# START OPENVPN RULES
-# NAT table rules
-*nat
-:POSTROUTING ACCEPT [0:0]
-# Allow traffic from OpenVPN client to eth0
--I POSTROUTING -s 10.8.0.0/24 -o eth0 -j MASQUERADE
--I POSTROUTING -s 10.9.0.0/24 -o eth0 -j MASQUERADE
-COMMIT
-# END OPENVPN RULES" >> /etc/ufw/before.rules
-ufw reload
+iptables -t nat -I POSTROUTING -s 10.8.0.0/24 -o ${netInt} -j MASQUERADE
+iptables -t nat -I POSTROUTING -s 10.9.0.0/24 -o ${netInt} -j MASQUERADE
 systemctl start openvpn@server-udp
 systemctl start openvpn@server-tcp
 systemctl enable openvpn@server-udp
 systemctl enable openvpn@server-tcp
-
 # Configure OpenVPN client configuration
 mkdir -p /iriszz/openvpn
 wget -qO /iriszz/openvpn/client-udp.ovpn "https://raw.githubusercontent.com/iriszz-official/autoscript/main/FILES/openvpn/client-udp.ovpn"
@@ -289,6 +279,15 @@ chmod +x install.sh
 ./install.sh
 cd
 rm -rf ddos.zip ddos-deflate
+
+iptables -A FORWARD -m string --algo bm --string "BitTorrent" -j DROP
+iptables -A FORWARD -m string --algo bm --string "BitTorrent protocol" -j DROP
+iptables -A FORWARD -m string --algo bm --string "peer_id=" -j DROP
+iptables -A FORWARD -m string --algo bm --string ".torrent" -j DROP
+iptables -A FORWARD -m string --algo bm --string "announce.php?passkey=" -j DROP
+iptables -A FORWARD -m string --algo bm --string "torrent" -j DROP
+iptables -A FORWARD -m string --algo bm --string "announce" -j DROP
+iptables -A FORWARD -m string --algo bm --string "info_hash" -j DROP
 
 # Configure script
 wget -qO /usr/bin/menu "https://raw.githubusercontent.com/iriszz-official/autoscript/main/FILES/menu/menu.sh"
