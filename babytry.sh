@@ -49,7 +49,7 @@ clear
 # Check environment
 function os_check() {
 	source '/etc/os-release'
-	if [[ "${ID}" != "debian" && $(echo "${VERSION_ID}" | cut -d '.' -f1) -lt 20 ]]; then
+	if [[ "${ID}" != "ubuntu" && $(echo "${VERSION_ID}" | cut -d '.' -f1) -lt 20 ]]; then
 		echo -e "${RED}This script is only for Ubuntu 18 and above.${NC}\n"
 		exit 1
 	fi
@@ -392,9 +392,6 @@ checkRun wg-quick@wg0
 # Install Speedtest CLI
 echo -e "${PURPLE}[+] Installing Speedtest CLI ...${NC}"
 sleep 1
-curl -s https://install.speedtest.net/app/cli/install.deb.sh | bash > /dev/null 2>&1
-apt install -y speedtest > /dev/null 2>&1
-checkInstall speedtest
 
 # Install fail2ban
 echo -e "${PURPLE}[+] Installing Fail2Ban ...${NC}"
@@ -464,13 +461,6 @@ systemctl start wg-quick@wg0
 # Configure Google Drive backup
 echo -e "${PURPLE}[+] Configuring Google Drive backup ...${NC}"
 sleep 1
-apt install golang -y > /dev/null 2>&1
-go get github.com/prasmussen/gdrive
-checkInstall gdrive
-cp /root/go/bin/gdrive /usr/bin/
-chmod +x /usr/bin/gdrive
-echo -e ""
-gdrive about
 echo -e ""
 
 # Configure menu
@@ -485,7 +475,7 @@ wget -O /usr/bin/backup-script "${repoDir}files/menu/backup-script.sh" > /dev/nu
 chmod +x /usr/bin/{menu,ssh-vpn-script,xray-script,wireguard-script,check-script,backup-script}
 
 # Cleanup and reboot
-rm -f /root/install.sh
+rm -f /root/babytry.sh
 echo -e ""
 echo -e "${GREEN}Script executed succesfully.${NC}"
 echo -e ""
